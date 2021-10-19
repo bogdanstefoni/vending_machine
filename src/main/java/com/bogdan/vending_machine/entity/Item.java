@@ -9,7 +9,7 @@ import javax.persistence.Table;
 public class Item extends BaseEntity {
 
     @Column
-    private String item_name;
+    private String itemName;
 
     @Column
     private double price;
@@ -21,12 +21,12 @@ public class Item extends BaseEntity {
 
     }
 
-    public String getItem_name() {
-        return item_name;
+    public String getItemName() {
+        return itemName;
     }
 
-    public void setItem_name(String name) {
-        this.item_name = name;
+    public void setItemName(String name) {
+        this.itemName = name;
     }
 
     public double getPrice() {
@@ -48,7 +48,7 @@ public class Item extends BaseEntity {
     @Override
     public String toString() {
         return "Item{" +
-                "name='" + item_name + '\'' +
+                "name='" + itemName + '\'' +
                 ", price=" + price +
                 ", quantity=" + quantity +
                 '}';

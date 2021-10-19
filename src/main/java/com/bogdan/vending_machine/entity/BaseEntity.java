@@ -26,5 +26,5 @@ public abstract class BaseEntity {
 
     @UpdateTimestamp
     @Column
-    private Date updatedDate;
+    private Date updateDate;
 }

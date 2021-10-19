@@ -17,24 +17,35 @@ public class VendingMachineDao {
 
     private Logger logger = LoggerFactory.getLogger(VendingMachineDao.class);
 
-    @Autowired
     private  CashRepository cashRepository;
 
-    @Autowired
     private  ItemRepository itemRepository;
 
+    @Autowired
+    public VendingMachineDao(CashRepository cashRepository, ItemRepository itemRepository) {
+        this.cashRepository = cashRepository;
+        this.itemRepository = itemRepository;
+    }
 
     public List<Item> getAllItems() {
         return itemRepository.findAll();
+    }
+
+    public List<Cash> getAllCash() {
+        return cashRepository.findAll();
     }
 
     public Optional<Item> getItemById(long id) {
         return itemRepository.findById(id);
     }
 
+    public Optional<Cash> getCash(String type){
+        return cashRepository.getCash(type).stream().findFirst();
+    }
+
 
     public Item addItem(Item item){
-        logger.info("Item was created with id: " + item.getItem_name());
+        logger.info("Item was created with id: " + item.getItemName());
 
         return itemRepository.save(item);
     }
@@ -46,7 +57,7 @@ public class VendingMachineDao {
     }
 
     public Item updateItem(Item item){
-        logger.info("Item with id: " + item.getItem_name() + " was updated");
+        logger.info("Item with id: " + item.getItemName() + " was updated");
 
         return itemRepository.save(item);
     }
@@ -61,5 +72,8 @@ public class VendingMachineDao {
         itemRepository.deleteById(id);
     }
 
-
+    public void removeCash(String type, long quantity) {
+        logger.info("Cash of type " + type + " removed by " + quantity);
+        cashRepository.removeCash(type, quantity);
+    }
 }
