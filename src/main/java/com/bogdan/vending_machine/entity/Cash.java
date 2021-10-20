@@ -9,7 +9,7 @@ import javax.persistence.Table;
 public class Cash extends BaseEntity {
 
     @Column
-    private String type;
+    private Long type;
 
     @Column
     private Long quantity;
@@ -17,11 +17,11 @@ public class Cash extends BaseEntity {
     public Cash() {
     }
 
-    public String getType() {
+    public Long getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Long type) {
         this.type = type;
     }
 

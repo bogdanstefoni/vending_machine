@@ -14,10 +14,10 @@ import java.util.List;
 public interface CashRepository extends JpaRepository<Cash, Long> {
 
     @Query("select c from Cash c where c.type = :type")
-    List<Cash> getCash(@Param("type") String type);
+    List<Cash> getCash(@Param("type") Long type);
 
     @Transactional
     @Modifying
     @Query("delete from Cash c where c.type = :type and c.quantity = :quantity")
-    void removeCash(@Param("type") String type, @Param("quantity") long quantity);
+    void removeCash(@Param("type") Long type, @Param("quantity") long quantity);
 }

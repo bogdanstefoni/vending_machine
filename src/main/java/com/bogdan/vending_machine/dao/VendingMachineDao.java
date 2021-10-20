@@ -39,7 +39,7 @@ public class VendingMachineDao {
         return itemRepository.findById(id);
     }
 
-    public Optional<Cash> getCash(String type){
+    public Optional<Cash> getCash(Long type){
         return cashRepository.getCash(type).stream().findFirst();
     }
 
@@ -72,7 +72,7 @@ public class VendingMachineDao {
         itemRepository.deleteById(id);
     }
 
-    public void removeCash(String type, long quantity) {
+    public void removeCash(Long type, long quantity) {
         logger.info("Cash of type " + type + " removed by " + quantity);
         cashRepository.removeCash(type, quantity);
     }

@@ -2,9 +2,19 @@ package com.bogdan.vending_machine.service;
 
 import com.bogdan.vending_machine.ErrorsEnum;
 import com.bogdan.vending_machine.dao.VendingMachineDao;
+import com.bogdan.vending_machine.dto.ItemDto;
+import com.bogdan.vending_machine.dto.ItemResponseDto;
 import com.bogdan.vending_machine.entity.Cash;
 import com.bogdan.vending_machine.entity.Item;
 import com.bogdan.vending_machine.exception.CustomException;
+import com.bogdan.vending_machine.exception.RestResponse;
+import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,7 +22,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class VendingMachineServiceImpl implements VendingMachineService{
+public class VendingMachineServiceImpl implements VendingMachineService {
+
+    private Logger logger = LoggerFactory.getLogger(VendingMachineServiceImpl.class);
 
     private final VendingMachineDao vmDao;
 
@@ -21,8 +33,19 @@ public class VendingMachineServiceImpl implements VendingMachineService{
     }
 
     @Override
-    public List<Item> getAllItems() {
-        return vmDao.getAllItems();
+    public ResponseEntity<String> getAllItems() {
+        List<Item> items = vmDao.getAllItems();
+        List<ItemResponseDto> itemResponseList = new ArrayList<>();
+
+        items.forEach(s -> {
+            ItemResponseDto responseDto = maptoItemResponseDto(s);
+            itemResponseList.add(responseDto);
+        });
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("items", itemResponseList);
+
+        return RestResponse.createSuccessResponse(jsonObject);
     }
 
     @Override
@@ -31,20 +54,32 @@ public class VendingMachineServiceImpl implements VendingMachineService{
     }
 
     @Override
-    public Optional<Cash> getCash(String type) {
+    public Optional<Cash> getCash(Long type) {
         return vmDao.getCash(type);
     }
 
     @Override
-    public Optional<Item> getItemById(long id) {
+    public ResponseEntity<String> getItemById(long id) {
+        Item item = vmDao.getItemById(id)
+                .orElseThrow(() -> new CustomException(ErrorsEnum.GENERAL_ERROR));
 
-        return vmDao.getItemById(id);
+        ItemResponseDto responseDto = maptoItemResponseDto(item);
+
+        return RestResponse.createSuccessResponse(new JSONObject(responseDto));
     }
 
     @Override
-    public Item addItem(Item item) {
+    public ResponseEntity<String> addItem(ItemDto itemDto) {
+        Item item = vmDao.getItemById(itemDto.getId())
+                .orElseThrow(() -> new CustomException(ErrorsEnum.GENERAL_ERROR));
 
-        return vmDao.addItem(item);
+        item.setQuantity(itemDto.getQuantity());
+
+        ItemResponseDto responseDto = maptoItemResponseDto(item);
+
+        logger.info("Added item: " + itemDto);
+
+        return RestResponse.createSuccessResponse(new JSONObject(responseDto));
     }
 
     @Override
@@ -53,17 +88,21 @@ public class VendingMachineServiceImpl implements VendingMachineService{
     }
 
     @Override
-    public Item buyItem(Item item, long payment) {
+    public ResponseEntity<String> buyItem(ItemDto item) {
+
         return null;
     }
 
     @Override
-    public Item updateItem(Item item) {
-        Item foundItem = vmDao.getItemById(item.getId())
+    public ResponseEntity<String> updateItem(ItemDto itemDto) {
+        Item foundItem = vmDao.getItemById(itemDto.getId())
                 .orElseThrow(() -> new CustomException(ErrorsEnum.GENERAL_ERROR));
 
+        mapToItem(itemDto, foundItem);
 
-        return vmDao.updateItem(foundItem);
+        ItemResponseDto responseDto = maptoItemResponseDto(vmDao.updateItem(foundItem));
+
+        return RestResponse.createSuccessResponse(new JSONObject(responseDto));
     }
 
     @Override
@@ -81,12 +120,36 @@ public class VendingMachineServiceImpl implements VendingMachineService{
     }
 
     @Override
-    public void removeCash(String type, long quantity) {
+    public void removeCash(Long type, long quantity) {
         Cash foundCash = vmDao.getCash(type)
                 .orElseThrow(() -> new CustomException(ErrorsEnum.GENERAL_ERROR));
 
-         foundCash.setQuantity(foundCash.getQuantity() - quantity);
+        foundCash.setQuantity(foundCash.getQuantity() - quantity);
 
         vmDao.removeCash(type, quantity);
+    }
+
+    private Item mapToItem(ItemDto itemDto) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
+        return mapper.map(itemDto, Item.class);
+    }
+
+    private void mapToItem(ItemDto itemDto, Item item) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.addMappings(new PropertyMap<ItemDto, Item>() {
+            @Override
+            protected void configure() {
+                skip(destination.getId());
+            }
+        });
+        mapper.map(itemDto, item);
+    }
+
+    private ItemResponseDto maptoItemResponseDto(Item item) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
+        return mapper.map(item, ItemResponseDto.class);
     }
 }

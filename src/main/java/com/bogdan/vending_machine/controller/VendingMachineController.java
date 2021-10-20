@@ -1,9 +1,11 @@
 package com.bogdan.vending_machine.controller;
 
+import com.bogdan.vending_machine.dto.ItemDto;
 import com.bogdan.vending_machine.entity.Cash;
 import com.bogdan.vending_machine.entity.Item;
 import com.bogdan.vending_machine.service.VendingMachineService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class VendingMachineController {
     }
 
     @GetMapping()
-    public List<Item> getItems() {
+    public ResponseEntity<String> getItems() {
         return vmService.getAllItems();
     }
 
@@ -31,17 +33,17 @@ public class VendingMachineController {
     }
 
     @GetMapping("/cash/{type}")
-    public Optional<Cash> getCash(@PathVariable String type) {
+    public Optional<Cash> getCash(@PathVariable Long type) {
         return vmService.getCash(type);
     }
 
     @GetMapping("/{id}")
-    public Optional<Item> getItemById(@PathVariable long id) {
+    public ResponseEntity<String> getItemById(@PathVariable long id) {
         return vmService.getItemById(id);
     }
 
     @PostMapping("/addItem")
-    public Item addItem(@RequestBody Item item) {
+    public ResponseEntity<String> addItem(@RequestBody ItemDto item) {
         return vmService.addItem(item);
     }
 
@@ -51,7 +53,7 @@ public class VendingMachineController {
     }
 
     @PutMapping("/{itemId}")
-    public Item updateItem(@RequestBody Item item, @PathVariable long itemId) {
+    public ResponseEntity<String> updateItem(@RequestBody ItemDto item, @PathVariable long itemId) {
 
         item.setId(itemId);
 
@@ -71,7 +73,7 @@ public class VendingMachineController {
     }
 
     @DeleteMapping("/cash/{type}/{quantity}")
-    public void removeCash(@PathVariable String type, @PathVariable long quantity) {
+    public void removeCash(@PathVariable Long type, @PathVariable long quantity) {
 
         vmService.removeCash(type,quantity);
     }
