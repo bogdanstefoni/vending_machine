@@ -19,6 +19,8 @@ public interface VendingMachineService {
 
 	Optional<Cash> getCash(Long type);
 
+	ResponseEntity<String> getItemByName(String itemName);
+
 	ResponseEntity<String> addItem(ItemDto itemDto);
 
 	Cash addCash(Cash cash);

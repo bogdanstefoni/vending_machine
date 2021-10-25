@@ -43,6 +43,10 @@ public class VendingMachineDao {
         return cashRepository.getCash(type).stream().findFirst();
     }
 
+    public Optional<Item> getItemByName(String itemName){
+        return itemRepository.getItemByName(itemName).stream().findFirst();
+    }
+
 
     public Item addItem(Item item){
         logger.info("Item was created with id: " + item.getItemName());

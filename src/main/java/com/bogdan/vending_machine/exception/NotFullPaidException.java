@@ -3,9 +3,9 @@ package com.bogdan.vending_machine.exception;
 public class NotFullPaidException extends RuntimeException {
 
     private final String message;
-    private final long remaining;
+    private final double remaining;
 
-    public NotFullPaidException(String message, long remaining) {
+    public NotFullPaidException(String message, double remaining) {
         this.message = message;
         this.remaining = remaining;
     }
@@ -15,7 +15,7 @@ public class NotFullPaidException extends RuntimeException {
         return message + remaining;
     }
 
-    public long getRemaining() {
+    public double getRemaining() {
         return remaining;
     }
 }

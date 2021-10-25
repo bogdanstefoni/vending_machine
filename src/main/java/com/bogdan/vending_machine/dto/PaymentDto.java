@@ -4,34 +4,33 @@ import java.util.ArrayList;
 
 public class PaymentDto {
 
-	private String itemName;
+    private String itemName;
 
-	private ArrayList<Integer> coins;
+    private ArrayList<Integer> bills;
 
-	private ArrayList<Integer> bills;
+    private ArrayList<Integer> coins;
 
-	public String getItemName() {
-		return itemName;
-	}
+    public String getItemName() {
+        return itemName;
+    }
 
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
-	}
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
 
-	public ArrayList<Integer> getCoins() {
-		return coins;
-	}
+    public ArrayList<Integer> getBills() {
+        return bills;
+    }
 
-	public void setCoins(ArrayList<Integer> coins) {
-		this.coins = coins;
-	}
+    public void setBills(ArrayList<Integer> bills) {
+        this.bills = bills;
+    }
 
-	public ArrayList<Integer> getBills() {
-		return bills;
-	}
+    public ArrayList<Integer> getCoins() {
+        return coins;
+    }
 
-	public void setBills(ArrayList<Integer> bills) {
-		this.bills = bills;
-	}
-
+    public void setCoins(ArrayList<Integer> coins) {
+        this.coins = coins;
+    }
 }
