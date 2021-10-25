@@ -9,6 +9,7 @@ import com.bogdan.vending_machine.dto.PaymentDto;
 import com.bogdan.vending_machine.entity.Cash;
 import com.bogdan.vending_machine.entity.Item;
 import com.bogdan.vending_machine.exception.*;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
@@ -19,10 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class VendingMachineServiceImpl implements VendingMachineService {
@@ -81,15 +81,14 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 
     @Override
     public ResponseEntity<String> addItem(ItemDto itemDto) {
-        Item item = vmDao.getItemById(itemDto.getId()).orElseThrow(() -> new CustomException(ErrorsEnum.ITEM_NOT_FOUND));
+//        Optional<Item> existingItem = vmDao.getItemById(itemDto.getId());
 
-        item.setQuantity(itemDto.getQuantity());
 
-        ItemResponseDto responseDto = mapToItemResponseDto(item);
+        Item item = mapToItem(itemDto);
 
         logger.info("Added item: " + itemDto);
 
-        return RestResponse.createSuccessResponse(new JSONObject(responseDto));
+        return RestResponse.createSuccessResponse(new JSONObject(mapToItemResponseDto(vmDao.addItem(item))));
     }
 
     @Override
@@ -99,9 +98,9 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 
     @Override
     public ResponseEntity<String> buyItem(PaymentDto paymentDto) {
-        if (!CashEnum.isCashValid(paymentDto.getBills()) || !CashEnum.isCashValid(paymentDto.getCoins())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+//        if (!CashEnum.isCashValid(paymentDto.getBills()) || !CashEnum.isCashValid(paymentDto.getCoins())) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+//        }
         Item item = vmDao.getItemByName(paymentDto.getItemName())
                 .orElseThrow(() -> new CustomException(ErrorsEnum.ITEM_NOT_FOUND));
         if (item.getQuantity() <= 0) {
@@ -115,15 +114,16 @@ public class VendingMachineServiceImpl implements VendingMachineService {
                 .mapToDouble(a -> a)
                 .sum();
         if (balance >= item.getPrice()) {
-            if (hasSufficientChangeForAmount((long) (balance - item.getPrice()))) {
-                removeItemById(item.getId());
+            if (hasSufficientChange(paymentDto)) {
+                item.setQuantity(item.getQuantity() - 1);
+                vmDao.updateItem(item);
+                logger.info("item: " + item.getItemName() + StringUtils.SPACE + item.getQuantity());
                 return RestResponse.createSuccessResponse(new JSONObject(responseDto));
             }
             throw new NotSufficientChangeException("Not sufficient change");
         }
-        double remainingBalance = item.getPrice() - balance;
 
-        throw new NotFullPaidException("Price is not full paid, remaining: ", remainingBalance);
+        return RestResponse.createErrorResponse(ErrorsEnum.PRICE_NOT_FULL_PAID);
     }
 
     @Override
@@ -137,6 +137,8 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 
         return RestResponse.createSuccessResponse(new JSONObject(responseDto));
     }
+
+
 
     @Override
     public Cash updateCash(Cash cash) {
@@ -152,38 +154,48 @@ public class VendingMachineServiceImpl implements VendingMachineService {
     }
 
     @Override
-    public void removeCash(Long type, long quantity) {
-        Cash foundCash = vmDao.getCash(type).orElseThrow(() -> new CustomException(ErrorsEnum.ITEM_NOT_FOUND));
+    public void removeCash( long quantity) {
+        List<Cash> cashList = getAllCash();
+        cashList.forEach(c -> {
+            c.setQuantity(c.getQuantity() - quantity);
+        });
 
-        foundCash.setQuantity(foundCash.getQuantity() - quantity);
 
-        vmDao.removeCash(type, quantity);
+        vmDao.removeCash( quantity);
     }
 
-    private List<CashEnum> getChange(long amount) throws NotSufficientChangeException {
-        final List<CashEnum> changes = new ArrayList<>();
-        Cash bank_inventory = new Cash();
-
-        if (amount > 0) {
-
+    private List<Cash> getChange(long amount) throws NotSufficientChangeException {
+//        final List<CashEnum> cashEnum = new ArrayList<>();
+        List<Cash> changes = new ArrayList<>();
+        List<Cash> cashList = getAllCash();
+        if(amount > 0){
             long balance = amount;
             while (balance > 0) {
-                Arrays.asList(CashEnum.values())
-                        .forEach(c -> {
-                            if ((amount >= c.getValue()) && (c.getValue() == bank_inventory.getType())) {
-                                changes.add(c);
-                                bank_inventory.setQuantity(balance - c.getValue());
-                            } else {
-                                throw new NotSufficientChangeException(
-                                        "Not sufficient change " + " Please try another product."
-                                );
-                            }
-                        });
+                cashList.forEach(c -> {
+                    if(balance >= c.getQuantity()) {
+                        changes.add(c);
+                        removeCash(amount);
+                    }
+                });
             }
-
         }
-        updateCash(bank_inventory);
         return changes;
+    }
+
+    private boolean hasSufficientChange(PaymentDto paymentDto) {
+
+        ArrayList<Integer> payment = new ArrayList<>();
+        payment.addAll(paymentDto.getBills());
+        payment.addAll(paymentDto.getCoins());
+        long balance = payment.stream()
+                .mapToLong(a -> a)
+                .sum();
+        List<Cash> bank_inventory = getAllCash();
+         long currentBalance = 0;
+        for(Cash c : bank_inventory) {
+            currentBalance += c.getQuantity();
+        }
+        return hasSufficientChangeForAmount( (currentBalance - balance));
     }
 
     private boolean hasSufficientChangeForAmount(long amount) {

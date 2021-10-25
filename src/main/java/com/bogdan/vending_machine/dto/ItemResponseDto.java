@@ -1,5 +1,6 @@
 package com.bogdan.vending_machine.dto;
 
+
 public class ItemResponseDto {
 
     private String itemName;
@@ -31,4 +32,5 @@ public class ItemResponseDto {
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
+
 }

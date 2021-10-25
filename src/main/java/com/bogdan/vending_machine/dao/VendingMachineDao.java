@@ -66,6 +66,8 @@ public class VendingMachineDao {
         return itemRepository.save(item);
     }
 
+
+
     public Cash updateCash(Cash cash){
         logger.info(cash.getType() + " " + cash.getQuantity() + " updated");
         return cashRepository.save(cash);
@@ -76,8 +78,8 @@ public class VendingMachineDao {
         itemRepository.deleteById(id);
     }
 
-    public void removeCash(Long type, long quantity) {
-        logger.info("Cash of type " + type + " removed by " + quantity);
-        cashRepository.removeCash(type, quantity);
+    public void removeCash( long quantity) {
+        logger.info("Cash of type " + " removed by " + quantity);
+        cashRepository.removeCash( quantity);
     }
 }

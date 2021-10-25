@@ -29,9 +29,11 @@ public interface VendingMachineService {
 
 	ResponseEntity<String> updateItem(ItemDto itemDto);
 
+
+
 	Cash updateCash(Cash cash);
 
 	void removeItemById(long id);
 
-	void removeCash(Long type, long quantity);
+	void removeCash( long quantity);
 }

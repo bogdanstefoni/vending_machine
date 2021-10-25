@@ -17,6 +17,6 @@ public interface CashRepository extends JpaRepository<Cash, Long> {
 
 //	@Transactional
 //	@Modifying
-	@Query("delete from Cash c where c.type = :type and c.quantity = :quantity")
-	void removeCash(@Param("type") Long type, @Param("quantity") long quantity);
+	@Query("delete from Cash c where  c.quantity = :quantity")
+	void removeCash(@Param("quantity") long quantity);
 }

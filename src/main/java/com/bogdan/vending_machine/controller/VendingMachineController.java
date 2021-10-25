@@ -82,10 +82,10 @@ public class VendingMachineController {
 		vmService.removeItemById(itemId);
 	}
 
-	@DeleteMapping("/cash/{type}/{quantity}")
-	public void removeCash(@PathVariable Long type, @PathVariable long quantity) {
+	@DeleteMapping("/cash/{quantity}")
+	public void removeCash(@PathVariable long quantity) {
 
-		vmService.removeCash(type, quantity);
+		vmService.removeCash( quantity);
 	}
 
 	@PostMapping("/buy")
