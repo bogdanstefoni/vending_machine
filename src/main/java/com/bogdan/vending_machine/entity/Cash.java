@@ -1,35 +1,35 @@
 package com.bogdan.vending_machine.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import com.bogdan.vending_machine.CashEnum;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "bank_storage")
 public class Cash extends BaseEntity {
 
     @Column
-    private Long type;
+    private int type;
 
     @Column
-    private Long quantity;
+    private double quantity;
 
     public Cash() {
     }
 
-    public Long getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(Long type) {
+    public void setType(int type) {
         this.type = type;
     }
 
-    public Long getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 

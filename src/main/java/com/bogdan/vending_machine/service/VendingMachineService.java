@@ -3,6 +3,7 @@ package com.bogdan.vending_machine.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.bogdan.vending_machine.CashEnum;
 import org.springframework.http.ResponseEntity;
 
 import com.bogdan.vending_machine.dto.ItemDto;
@@ -17,7 +18,7 @@ public interface VendingMachineService {
 
 	ResponseEntity<String> getItemById(long id);
 
-	Optional<Cash> getCash(Long type);
+	Optional<Cash> getCash(int type);
 
 	ResponseEntity<String> getItemByName(String itemName);
 
@@ -35,5 +36,5 @@ public interface VendingMachineService {
 
 	void removeItemById(long id);
 
-	void removeCash( long quantity);
+	void removeCash( double quantity);
 }

@@ -3,6 +3,7 @@ package com.bogdan.vending_machine.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.bogdan.vending_machine.CashEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +42,7 @@ public class VendingMachineController {
 	}
 
 	@GetMapping("/cash/{type}")
-	public Optional<Cash> getCash(@PathVariable Long type) {
+	public Optional<Cash> getCash(@PathVariable int type) {
 		return vmService.getCash(type);
 	}
 

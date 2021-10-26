@@ -6,7 +6,10 @@ public enum ErrorsEnum {
 
     GENERAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error.", 1),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Item not found", 2),
-    PRICE_NOT_FULL_PAID(HttpStatus.NOT_ACCEPTABLE, "Price not full paid", 3);
+    PRICE_NOT_FULL_PAID(HttpStatus.NOT_ACCEPTABLE, "Price not full paid", 3),
+    ITEM_SOLD_OUT(HttpStatus.NOT_ACCEPTABLE, "Item sold out", 4),
+    NOT_SUFFICIENT_CHANGE(HttpStatus.SERVICE_UNAVAILABLE, "Not sufficient change, please try another product",
+            5);
 
 
 

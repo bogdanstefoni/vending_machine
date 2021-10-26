@@ -1,5 +1,6 @@
 package com.bogdan.vending_machine.dao;
 
+import com.bogdan.vending_machine.CashEnum;
 import com.bogdan.vending_machine.entity.Cash;
 import com.bogdan.vending_machine.entity.Item;
 import com.bogdan.vending_machine.repo.CashRepository;
@@ -39,7 +40,7 @@ public class VendingMachineDao {
         return itemRepository.findById(id);
     }
 
-    public Optional<Cash> getCash(Long type){
+    public Optional<Cash> getCash(int type){
         return cashRepository.getCash(type).stream().findFirst();
     }
 
@@ -78,7 +79,7 @@ public class VendingMachineDao {
         itemRepository.deleteById(id);
     }
 
-    public void removeCash( long quantity) {
+    public void removeCash( double quantity) {
         logger.info("Cash of type " + " removed by " + quantity);
         cashRepository.removeCash( quantity);
     }

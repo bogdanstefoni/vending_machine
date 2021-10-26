@@ -16,12 +16,10 @@ import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +54,7 @@ public class VendingMachineServiceImpl implements VendingMachineService {
     }
 
     @Override
-    public Optional<Cash> getCash(Long type) {
+    public Optional<Cash> getCash(int type) {
         return vmDao.getCash(type);
     }
 
@@ -104,7 +102,7 @@ public class VendingMachineServiceImpl implements VendingMachineService {
         Item item = vmDao.getItemByName(paymentDto.getItemName())
                 .orElseThrow(() -> new CustomException(ErrorsEnum.ITEM_NOT_FOUND));
         if (item.getQuantity() <= 0) {
-            throw new SoldOutException("Item:" + item.getItemName() + " sold out");
+            return RestResponse.createErrorResponse(ErrorsEnum.ITEM_SOLD_OUT);
         }
         ItemResponseDto responseDto = mapToItemResponseDto(item);
         ArrayList<Integer> payment = new ArrayList<>();
@@ -114,7 +112,7 @@ public class VendingMachineServiceImpl implements VendingMachineService {
                 .mapToDouble(a -> a)
                 .sum();
         if (balance >= item.getPrice()) {
-            if (hasSufficientChange(paymentDto)) {
+            if (hasSufficientChangeForAmount(balance - item.getPrice())) {
                 item.setQuantity(item.getQuantity() - 1);
                 vmDao.updateItem(item);
                 logger.info("item: " + item.getItemName() + StringUtils.SPACE + item.getQuantity());
@@ -154,7 +152,7 @@ public class VendingMachineServiceImpl implements VendingMachineService {
     }
 
     @Override
-    public void removeCash( long quantity) {
+    public void removeCash( double quantity) {
         List<Cash> cashList = getAllCash();
         cashList.forEach(c -> {
             c.setQuantity(c.getQuantity() - quantity);
@@ -164,41 +162,48 @@ public class VendingMachineServiceImpl implements VendingMachineService {
         vmDao.removeCash( quantity);
     }
 
-    private List<Cash> getChange(long amount) throws NotSufficientChangeException {
+    private List<Integer> getChange(double amount) throws NotSufficientChangeException {
 //        final List<CashEnum> cashEnum = new ArrayList<>();
-        List<Cash> changes = new ArrayList<>();
-        List<Cash> cashList = getAllCash();
+        List<Integer> changes = new ArrayList<>();
+
+
+        List<Integer> values = Arrays.stream(CashEnum.values()).map(CashEnum::getValue)
+                .collect(Collectors.toList());
         if(amount > 0){
-            long balance = amount;
-            while (balance > 0) {
-                cashList.forEach(c -> {
-                    if(balance >= c.getQuantity()) {
-                        changes.add(c);
-                        removeCash(amount);
-                    }
-                });
+            double balance = amount;
+            while (balance >0) {
+                if (balance >= CashEnum.PENNY.getValue() && vmDao.getCash(CashEnum.PENNY.getValue()).isPresent()) {
+                    changes.add(CashEnum.PENNY.getValue());
+                    balance = balance - CashEnum.PENNY.getValue();
+                    continue;
+                } else if(balance >= CashEnum.QUARTER.getValue() && vmDao.getCash(CashEnum.QUARTER.getValue()).isPresent()) {
+                    changes.add(CashEnum.QUARTER.getValue());
+                    balance = balance - CashEnum.QUARTER.getValue();
+                    continue;
+                } else if(balance >= CashEnum.COIN.getValue() && vmDao.getCash(CashEnum.COIN.getValue()).isPresent()) {
+                    changes.add(CashEnum.COIN.getValue());
+                    balance = balance - CashEnum.COIN.getValue();
+                    continue;
+                } else if(balance >= CashEnum.ONE_NOTE.getValue() && vmDao.getCash(CashEnum.ONE_NOTE.getValue()).isPresent()) {
+                    changes.add(CashEnum.ONE_NOTE.getValue());
+                    balance = balance - CashEnum.ONE_NOTE.getValue();
+                    continue;
+                }else if(balance >= CashEnum.TWO_NOTE.getValue() && vmDao.getCash(CashEnum.TWO_NOTE.getValue()).isPresent()) {
+                    changes.add(CashEnum.TWO_NOTE.getValue());
+                    balance = balance - CashEnum.TWO_NOTE.getValue();
+                    continue;
+                } else {
+                    throw new CustomException(ErrorsEnum.NOT_SUFFICIENT_CHANGE);
+                }
+
             }
+
         }
         return changes;
     }
 
-    private boolean hasSufficientChange(PaymentDto paymentDto) {
 
-        ArrayList<Integer> payment = new ArrayList<>();
-        payment.addAll(paymentDto.getBills());
-        payment.addAll(paymentDto.getCoins());
-        long balance = payment.stream()
-                .mapToLong(a -> a)
-                .sum();
-        List<Cash> bank_inventory = getAllCash();
-         long currentBalance = 0;
-        for(Cash c : bank_inventory) {
-            currentBalance += c.getQuantity();
-        }
-        return hasSufficientChangeForAmount( (currentBalance - balance));
-    }
-
-    private boolean hasSufficientChangeForAmount(long amount) {
+    private boolean hasSufficientChangeForAmount(double amount) {
         boolean hasChange = true;
         try {
             getChange(amount);
