@@ -1,15 +1,23 @@
 package com.bogdan.vending_machine.exception;
 
-public class SoldOutException extends RuntimeException {
+import com.bogdan.vending_machine.ErrorsEnum;
 
-    private final String message;
+public class SoldOutException extends CustomException {
 
-    public SoldOutException(String message) {
-        this.message = message;
+    private static final long serialVersionUID = 1L;
+
+    private ErrorsEnum errorsEnum;
+
+    public SoldOutException(ErrorsEnum errorsEnum) {
+        super(ErrorsEnum.ITEM_SOLD_OUT);
+        this.errorsEnum = errorsEnum;
     }
 
-    @Override
-    public String getMessage() {
-        return message;
+    public ErrorsEnum getErrorsEnum() {
+        return errorsEnum;
+    }
+
+    public void setErrorsEnum(ErrorsEnum errorsEnum) {
+        this.errorsEnum = errorsEnum;
     }
 }

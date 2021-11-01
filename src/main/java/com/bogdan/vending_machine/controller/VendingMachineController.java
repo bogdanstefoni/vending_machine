@@ -3,7 +3,7 @@ package com.bogdan.vending_machine.controller;
 import java.util.List;
 import java.util.Optional;
 
-import com.bogdan.vending_machine.CashEnum;
+import com.bogdan.vending_machine.dto.CashDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,12 +37,12 @@ public class VendingMachineController {
 	}
 
 	@GetMapping("/cash")
-	public List<Cash> getAllCash() {
+	public ResponseEntity<String> getAllCash() {
 		return vmService.getAllCash();
 	}
 
 	@GetMapping("/cash/{type}")
-	public Optional<Cash> getCash(@PathVariable int type) {
+	public ResponseEntity<String> getCash(@PathVariable int type) {
 		return vmService.getCash(type);
 	}
 
@@ -57,8 +57,8 @@ public class VendingMachineController {
 	}
 
 	@PostMapping("/addCash")
-	public Cash addCash(@RequestBody Cash cash) {
-		return vmService.addCash(cash);
+	public ResponseEntity<String> addCash(@RequestBody CashDto cashDto) {
+		return vmService.addCash(cashDto);
 	}
 
 
@@ -71,10 +71,10 @@ public class VendingMachineController {
 		return vmService.updateItem(item);
 	}
 
-	@PutMapping("/cash/{type}")
-	public Cash updateCash(@RequestBody Cash cash, @PathVariable String type) {
+	@PutMapping("/cash/update")
+	public ResponseEntity<String> updateCash(@RequestBody CashDto cashDto) {
 
-		return vmService.updateCash(cash);
+		return vmService.updateCash(cashDto);
 	}
 
 	@DeleteMapping("/{itemId}")
@@ -83,10 +83,10 @@ public class VendingMachineController {
 		vmService.removeItemById(itemId);
 	}
 
-	@DeleteMapping("/cash/{quantity}")
-	public void removeCash(@PathVariable long quantity) {
+	@DeleteMapping("/cash/{type}")
+	public void removeCash(@PathVariable int type) {
 
-		vmService.removeCash( quantity);
+		vmService.removeCash( type);
 	}
 
 	@PostMapping("/buy")

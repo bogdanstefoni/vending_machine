@@ -1,6 +1,5 @@
 package com.bogdan.vending_machine.dao;
 
-import com.bogdan.vending_machine.CashEnum;
 import com.bogdan.vending_machine.entity.Cash;
 import com.bogdan.vending_machine.entity.Item;
 import com.bogdan.vending_machine.repo.CashRepository;

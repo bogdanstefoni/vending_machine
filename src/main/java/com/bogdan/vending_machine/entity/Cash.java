@@ -1,7 +1,5 @@
 package com.bogdan.vending_machine.entity;
 
-import com.bogdan.vending_machine.CashEnum;
-
 import javax.persistence.*;
 
 @Entity

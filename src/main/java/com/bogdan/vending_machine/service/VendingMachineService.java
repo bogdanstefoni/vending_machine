@@ -3,7 +3,7 @@ package com.bogdan.vending_machine.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.bogdan.vending_machine.CashEnum;
+import com.bogdan.vending_machine.dto.CashDto;
 import org.springframework.http.ResponseEntity;
 
 import com.bogdan.vending_machine.dto.ItemDto;
@@ -14,17 +14,17 @@ public interface VendingMachineService {
 
 	ResponseEntity<String> getAllItems();
 
-	List<Cash> getAllCash();
+	ResponseEntity<String> getAllCash();
 
 	ResponseEntity<String> getItemById(long id);
 
-	Optional<Cash> getCash(int type);
+	ResponseEntity<String> getCash(int type);
 
 	ResponseEntity<String> getItemByName(String itemName);
 
 	ResponseEntity<String> addItem(ItemDto itemDto);
 
-	Cash addCash(Cash cash);
+	ResponseEntity<String> addCash(CashDto cashDto);
 
 	ResponseEntity<String> buyItem(PaymentDto paymentDto);
 
@@ -32,7 +32,7 @@ public interface VendingMachineService {
 
 
 
-	Cash updateCash(Cash cash);
+	ResponseEntity<String> updateCash(CashDto cashDto);
 
 	void removeItemById(long id);
 
