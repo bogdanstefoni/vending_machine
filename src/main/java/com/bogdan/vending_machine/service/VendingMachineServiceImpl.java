@@ -204,13 +204,11 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 
         values.forEach(c -> {
             if (amount > 0) {
-                double balance = amount;
 
-                if (balance == c) {
+                if (amount == c) {
                     changes.add(c);
-                    balance = vmDao.getCash(c).get().getQuantity() - 1;
                     Cash cash = vmDao.getCash(c).get();
-                    cash.setQuantity(balance);
+                    cash.setQuantity(vmDao.getCash(c).get().getQuantity() - 1);
                     vmDao.updateCash(cash);
                 }
             }
