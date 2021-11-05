@@ -2,6 +2,7 @@ package com.bogdan.vending_machine.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -190,7 +191,6 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 	}
 
 	public List<Integer> getChange(double amount) throws NotSufficientChangeException {
-//        final List<CashEnum> cashEnum = new ArrayList<>();
 		List<Integer> changes = new ArrayList<>();
 
 		Cash twoNote = vmDao.getCash(CashEnum.TWO_NOTE.getValue()).get();
@@ -199,21 +199,6 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 		Cash quarter = vmDao.getCash(CashEnum.QUARTER.getValue()).get();
 		Cash penny = vmDao.getCash(CashEnum.PENNY.getValue()).get();
 
-//		List<Integer> values = Arrays.stream(CashEnum.values()).map(CashEnum::getValue).collect(Collectors.toList());
-
-//		values.forEach(c -> {
-//			if (amount > 0) {
-//
-//				if (amount >= c) {
-//					changes.add(c);
-//					Cash cash = vmDao.getCash(c).get();
-//					cash.setQuantity(cash.getQuantity() - 1);
-//					vmDao.updateCash(cash);
-//				}
-//			}
-//
-//		});
-//            Cash cash = vmDao.getCash(c).get();
 		if (amount > 0) {
 			double balance = amount;
 			while (balance > 0) {
@@ -241,8 +226,6 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 					throw new NotSufficientChangeException();
 				}
 			}
-//            vmDao.updateCash(cash);
-//                    });
 		}
 
 		vmDao.updateCash(twoNote);
@@ -250,6 +233,33 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 		vmDao.updateCash(coin);
 		vmDao.updateCash(quarter);
 		vmDao.updateCash(penny);
+
+		return changes;
+	}
+
+	public List<Integer> getChange2(double amount) throws NotSufficientChangeException {
+		List<Integer> changes = new ArrayList<>();
+
+		List<Cash> cashEntities = vmDao.getAllCash().stream()
+				.sorted(Comparator.comparing(Cash::getQuantity, Comparator.reverseOrder()))
+				.collect(Collectors.toList());
+		if (amount > 0) {
+			double balance = amount;
+
+			for (Cash c : cashEntities) {
+				if (balance >= c.getType() && c.getQuantity() > 0) {
+					int quantityToRemove = (int) (balance / c.getType());
+					for (int i = 0; i < quantityToRemove; i++) {
+						changes.add(c.getType());
+					}
+					Integer sumToRemove = quantityToRemove * c.getType();
+					balance = balance - sumToRemove;
+					c.setQuantity(c.getQuantity() - quantityToRemove);
+				}
+			}
+
+		}
+		cashEntities.forEach(c -> vmDao.updateCash(c));
 
 		return changes;
 
