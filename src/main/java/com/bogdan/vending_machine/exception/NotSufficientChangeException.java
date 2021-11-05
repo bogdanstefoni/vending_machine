@@ -4,15 +4,10 @@ import com.bogdan.vending_machine.ErrorsEnum;
 
 public class NotSufficientChangeException extends CustomException {
 
-    private final String message;
+	private static final long serialVersionUID = 1L;
 
-    public NotSufficientChangeException(String message) {
-        super(ErrorsEnum.NOT_SUFFICIENT_CHANGE);
-        this.message = message;
-    }
+	public NotSufficientChangeException() {
+		super(ErrorsEnum.NOT_SUFFICIENT_CHANGE);
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
 }
