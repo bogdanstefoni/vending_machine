@@ -63,10 +63,9 @@ public class VendingMachineController {
 
 
 
-	@PutMapping("/{itemId}")
-	public ResponseEntity<String> updateItem(@RequestBody ItemDto item, @PathVariable long itemId) {
+	@PutMapping("/update")
+	public ResponseEntity<String> updateItem(@RequestBody ItemDto item) {
 
-		item.setId(itemId);
 
 		return vmService.updateItem(item);
 	}

@@ -9,7 +9,8 @@ public enum ErrorsEnum {
     PRICE_NOT_FULL_PAID(HttpStatus.NOT_ACCEPTABLE, "Price not full paid", 3),
     ITEM_SOLD_OUT(HttpStatus.NOT_ACCEPTABLE, "Item sold out", 4),
     NOT_SUFFICIENT_CHANGE(HttpStatus.SERVICE_UNAVAILABLE, "Not sufficient change, please try another product",
-            5);
+            5),
+    CASH_NOT_FOUND(HttpStatus.NOT_FOUND, "Cash not found", 6);
 
 
 

@@ -190,7 +190,7 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 		vmDao.removeCash(quantity);
 	}
 
-	public List<Integer> getChange(double amount) throws NotSufficientChangeException {
+	public List<Integer> getChange2(double amount) throws NotSufficientChangeException {
 		List<Integer> changes = new ArrayList<>();
 
 		Cash twoNote = vmDao.getCash(CashEnum.TWO_NOTE.getValue()).get();
@@ -237,11 +237,11 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 		return changes;
 	}
 
-	public List<Integer> getChange2(double amount) throws NotSufficientChangeException {
+	public List<Integer> getChange(double amount) throws NotSufficientChangeException {
 		List<Integer> changes = new ArrayList<>();
 
 		List<Cash> cashEntities = vmDao.getAllCash().stream()
-				.sorted(Comparator.comparing(Cash::getQuantity, Comparator.reverseOrder()))
+				.sorted(Comparator.comparing(Cash::getType, Comparator.reverseOrder()))
 				.collect(Collectors.toList());
 		if (amount > 0) {
 			double balance = amount;
@@ -256,10 +256,11 @@ public class VendingMachineServiceImpl implements VendingMachineService {
 					balance = balance - sumToRemove;
 					c.setQuantity(c.getQuantity() - quantityToRemove);
 				}
+
 			}
 
 		}
-		cashEntities.forEach(c -> vmDao.updateCash(c));
+		cashEntities.forEach(vmDao::updateCash);
 
 		return changes;
 
